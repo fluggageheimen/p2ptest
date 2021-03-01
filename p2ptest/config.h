@@ -7,6 +7,7 @@
 struct Config {
 	enum class Mode { Ordinary, Master, Unknown, Help };
 	Mode mode = Mode::Ordinary;
+    bool withoutUi = false;
 
 	NetAddress remoteServerAddress = NetAddress::any(0);
 	NetAddress localServerAddress = NetAddress::any(0);

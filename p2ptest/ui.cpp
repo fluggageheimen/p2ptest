@@ -72,6 +72,16 @@ int clrprintf(int color, char const* fmt, ...) {
 	return result;
 }
 
+int clrvprintf(int color, char const* fmt, va_list args) {
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(console, color);
+
+    int result = vprintf(fmt, args);
+
+    SetConsoleTextAttribute(console, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+    return result;
+}
+
 int print_nat_type(NatType type)
 {
 	switch (type) {
@@ -102,6 +112,10 @@ ConsoleUi::ConsoleUi()
 
 bool ConsoleUi::update()
 {
+    if (config.withoutUi) {
+        return true;
+    }
+
 	int cmd = m_cmdtype.load();
 	if (cmd == Command::ConfigUpdated) {
 		return true;
@@ -157,7 +171,7 @@ bool ConsoleUi::update()
         m_cmdtype.store(Command::Idle);
     }
 	if (cmd != Command::UpdatingConfig || !m_boardstate.ask.editor) {
-		//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0, 20 });
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0, 21 });
 	}
 
     return true;
@@ -344,8 +358,6 @@ void ConsoleUi::update_chat_board()
         }
         printf("|                                         \n");
     }
-
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0, 20 });
 }
 
 void ConsoleUi::update_logs()
@@ -357,6 +369,7 @@ void ConsoleUi::update_logs()
 
 void ConsoleUi::wait_command(int cmdwait)
 {
+    if (config.withoutUi) return;
 	while (m_cmdtype.load() != cmdwait) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
@@ -403,6 +416,10 @@ void ConsoleUi::setClient(PoolHandle id, char const* nickname, PeerStatus status
 
 void ConsoleUi::askUserConfig(Config& cfg)
 {
+    if (config.withoutUi) {
+        return;
+    }
+
 	wait_command();
 	m_cmdtype.store(Command::UpdateConfig);
 
@@ -416,25 +433,32 @@ void ConsoleUi::askUserConfig(Config& cfg)
 
 void ConsoleUi::onFatalError(char const* fmt, ...)
 {
-	wait_command();
+    if (!config.withoutUi) wait_command();
 
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(m_cmd.message.buffer, sizeof(m_cmd.message.buffer), fmt, args);
-	va_end(args);
-
-	m_cmdtype.store(Command::Message);
+    va_list args;
+    va_start(args, fmt);
+    if (config.withoutUi) {
+        clrvprintf(FOREGROUND_RED | FOREGROUND_INTENSITY, fmt, args);
+    } else {
+        vsnprintf(m_cmd.message.buffer, sizeof(m_cmd.message.buffer), fmt, args);
+    }
+    
+    va_end(args);
+    if (!config.withoutUi) m_cmdtype.store(Command::Critical);
 }
 
 void ConsoleUi::onFatalErrorWinApi(char const* fmt, uint32_t code)
 {
-	wait_command();
+    char buffer[128];
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buffer, sizeof(buffer), NULL);
 
-	char buffer[128];
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buffer, sizeof(buffer), NULL);
-	snprintf(m_cmd.message.buffer, sizeof(m_cmd.message.buffer), fmt, buffer, code);
-
-	m_cmdtype.store(Command::Message);
+    if (config.withoutUi) {
+        clrprintf(FOREGROUND_RED | FOREGROUND_INTENSITY, fmt, buffer, code);
+    } else {
+        wait_command();
+        snprintf(m_cmd.message.buffer, sizeof(m_cmd.message.buffer), fmt, buffer, code);
+        m_cmdtype.store(Command::Critical);
+    }
 }
 
 void ConsoleInput::update()

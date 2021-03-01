@@ -44,6 +44,7 @@ public:
 		enum Type {
 			Idle, NatInfo, UpdateConfig, UpdatingConfig, ConfigUpdated, UpdateUsers,
 			OnBoardMain,
+
 			Message, Critical,
 			LogMsg, LogWarning, LogError,
 		};

@@ -4,12 +4,14 @@
 
 void print_help()
 {
-	printf("<short>   <command>   <argtype>             <info>");
-	printf("-h        --help      [void]                Help");
-	printf("-m        --master    [void]                Launch as master node");
-	printf("-a        --address   [string:ipv4addr]     Set master node address (not used with '--master')");
-	printf("-e        --endpoint  [string:ipv4addr]     Set local socket address ('0.0.0.0:48800' by default)");
-	printf("          --localport [int]                 Set port for local socket ('48800' by default)");
+	printf("<short>   <command>   <argtype>             <info>\n");
+	printf("-h        --help      [void]                Help\n");
+	printf("-m        --master    [void]                Launch as master node\n");
+	printf("-a        --address   [string:ipv4addr]     Set master node address (not used with '--master')\n");
+	printf("-e        --endpoint  [string:ipv4addr]     Set local socket address ('0.0.0.0:48800' by default)\n");
+	printf("          --localport [int]                 Set port for local socket ('48800' by default)\n");
+    printf("-n        --nickname  [string]              Set nickname\n");
+    printf("          --noui      [void]                Disable UI elements\n");
 }
 
 void read_string(int argc, char const* argv[], int& i, std::string& outStr)
@@ -77,6 +79,9 @@ Config::Config(int argc, char const* argv[])
         else if (!strcmp(argv[i], "--localport")) {
 			read_port(argc, argv, i, endpoint);
 		}
+        else if (!strcmp(argv[i], "--noui")) {
+            withoutUi = true;
+        }
 	}
 }
 

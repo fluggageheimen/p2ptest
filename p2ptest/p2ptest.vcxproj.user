@@ -9,11 +9,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>p2ptest.exe --nickname client_a --localport 48801 --local-address "127.0.0.1 48800" --remote-address "185.108.4.123 48800"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>p2ptest.exe  --noui --nickname client_a --localport 48801 --local-address "127.0.0.1 48800" --remote-address "185.108.4.123 48800"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>p2ptest.exe --nickname client_a --localport 48801 --local-address "127.0.0.1 48800" --remote-address "185.108.4.123 48800"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>p2ptest.exe  --noui --nickname client_a --localport 48801 --local-address "127.0.0.1 48800" --remote-address "185.108.4.123 48800"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
